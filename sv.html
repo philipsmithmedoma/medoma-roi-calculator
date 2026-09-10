@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Medoma ROI-kalkylator</title>
+<meta name="description" content="Uppskatta kapaciteten Medoma frigör i er Hospital at Home-verksamhet – varje siffra är er egen, uppmätt eller ett öppet antagande, med hela uträkningen synlig.">
+<meta property="og:title" content="Medoma ROI-kalkylator">
+<meta property="og:description" content="Hur mycket mer skulle ert Hospital at Home-team hinna med? Se resultatet och hela uträkningen bakom.">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<script>(function(){try{var q=new URLSearchParams(location.search);var pick=q.get('lang')||localStorage.getItem('lang');if(pick==='en')location.replace('index.html'+location.search);}catch(e){}})();</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#132238;--ink-2:#4B5A6E;--line:#D6DDE6;--paper:#F6F8FA;--panel:#FFFFFF;
+    --brand:#1B3A6B;--teal:#0E7C86;--teal-soft:#E3F1F2;--amber:#9A6700;--amber-soft:#FBF1D9;
+    --grey-soft:#EEF1F5;--burg:#8E3348;--green:#1E6B45;--r:4px;--font:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{font-size:15px}
+  html,body{overflow-x:hidden}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font);line-height:1.4;font-feature-settings:"tnum" 1}
+  button,input,select{font:inherit;color:inherit}
+  a{color:var(--brand)}
+  h1,h2,h3{margin:0;font-weight:600;letter-spacing:-0.01em}
+  h1{font-size:1.3rem;line-height:1.2} h2{font-size:1.2rem} h3{font-size:.88rem}
+  p{margin:.3rem 0 0} .muted{color:var(--ink-2)} .small{font-size:.85rem}
+  select{padding:.25rem .4rem;border:1px solid var(--line);border-radius:var(--r);background:#fff}
+
+  header.top{background:var(--panel);border-bottom:1px solid var(--line);padding:.55rem 1.5rem}
+  header .lede{max-width:80ch}
+
+  .wrap{max-width:1400px;margin:0 auto;padding:.75rem 1.5rem 1.25rem;display:flex;flex-direction:column;gap:1rem}
+  .toprow{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;align-items:stretch}
+  .toprow>.panel{display:flex;flex-direction:column}
+  .toprow>.panel:nth-child(1){background:#E6F0FA}
+  .toprow>.panel:nth-child(2){background:#F9E9EC}
+  .toprow>.panel:nth-child(3){background:#E4F3EA}
+  .toprow .submit{margin-top:auto}
+  @media (max-width:1100px){.toprow{grid-template-columns:1fr}}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r)}
+  .panel>.ph{padding:.45rem .9rem;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:baseline;gap:1rem;flex-wrap:wrap}
+  .grp{border-top:1px solid var(--line);padding:.4rem .9rem} .grp:first-of-type{border-top:0}
+  .grp h3{margin-bottom:.15rem}
+  .field{display:grid;grid-template-columns:1fr auto;gap:.1rem .6rem;align-items:center;padding:.2rem 0;border-bottom:1px dashed var(--line)}
+  .field:last-child{border-bottom:0}
+  .field label{font-size:.88rem}
+  .field .hint{grid-column:1/-1;font-size:.72rem;color:var(--ink-2);line-height:1.3}
+  .field input[type=number]{width:6.2rem;padding:.22rem .45rem;border:1px solid var(--line);border-radius:var(--r);background:#fff;text-align:right}
+  .field input:focus-visible{outline:2px solid var(--teal);border-color:var(--teal)}
+  .unit{font-size:.76rem;color:var(--ink-2);margin-left:.3rem;display:inline-block;min-width:2.9rem}
+  .subtotal{display:flex;justify-content:space-between;gap:.6rem;padding:.3rem 0 .05rem;font-size:.85rem}
+  .subtotal b{font-weight:600}
+
+  .badge{display:inline-block;font-size:.7rem;padding:.06rem .4rem;border-radius:999px;border:1px solid transparent;vertical-align:middle;white-space:nowrap}
+  .b-meas{background:var(--teal-soft);color:var(--teal);border-color:#BFDDE0}
+  .b-input{background:var(--grey-soft);color:var(--ink-2);border-color:var(--line)}
+  .b-est{background:var(--amber-soft);color:var(--amber);border-color:#EBD8A6}
+
+  .scards{display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem;padding:.4rem .9rem .5rem}
+  .scard{border:1px solid var(--line);border-radius:var(--r);padding:.42rem .4rem;cursor:pointer;background:#fff;text-align:center;display:block;width:100%}
+  .scard[aria-pressed="true"]{background:var(--teal-soft);border-color:var(--teal)}
+  .scard .t{font-weight:600;font-size:.92rem}
+  .scard .d{font-size:.78rem;color:var(--ink-2);margin-top:.1rem}
+  .scard:focus-visible{outline:3px solid var(--teal)}
+  table.svals{border-collapse:collapse;font-size:.8rem;margin:0 .9rem .6rem;width:calc(100% - 1.8rem)}
+  table.svals td{padding:.16rem .35rem;border-bottom:1px dashed var(--line)}
+  table.svals td.v{text-align:right;font-weight:600;white-space:nowrap}
+  table.svals tr:last-child td{border-bottom:0}
+  .submit{padding:.5rem .9rem .7rem}
+  .submit .btn{width:100%;font-size:.95rem;padding:.55rem;background:var(--green);border-color:var(--green)}
+
+  .hero{padding:1.2rem .9rem;border-bottom:1px solid var(--line)}
+  .hero .n{font-size:2.6rem;font-weight:600;line-height:1;letter-spacing:-0.03em;color:var(--teal)}
+  .hero .l{font-size:.95rem;margin-top:.3rem;max-width:60ch}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));border-bottom:1px solid var(--line)}
+  @media (max-width:600px){.kpis{grid-template-columns:1fr}}
+  .kpi{padding:.8rem .9rem;border-right:1px solid var(--line)} .kpi:last-child{border-right:0}
+  .kpi .n{font-size:1.45rem;font-weight:600;line-height:1.1;letter-spacing:-0.02em}
+  .kpi .l{font-size:.82rem;color:var(--ink-2);margin-top:.1rem}
+  .bars{padding:.8rem .9rem}
+  .bar{display:grid;grid-template-columns:minmax(150px,240px) 1fr auto;gap:.6rem;align-items:center;padding:.3rem 0}
+  .bar .track{height:12px;background:var(--grey-soft);border-radius:2px;overflow:hidden}
+  .bar .fill{height:100%;background:var(--teal);transition:width .25s ease}
+  .bar .amt{min-width:6.5rem;text-align:right;font-weight:500;font-size:.9rem} .bar .lbl{font-size:.86rem}
+  .bar.total{border-top:1px solid var(--line);margin-top:.3rem;padding-top:.55rem;font-weight:600}
+  @media (prefers-reduced-motion:reduce){.bar .fill{transition:none}}
+  .rescheck{padding:.55rem .9rem .8rem;border-top:1px solid var(--line);font-size:.88rem}
+  .rescheck .n{font-weight:600}
+
+  table.ledger{width:100%;border-collapse:collapse;font-size:.85rem}
+  table.ledger th{text-align:left;font-weight:500;color:var(--ink-2);padding:.4rem .5rem;border-bottom:1px solid var(--line)}
+  table.ledger td{padding:.42rem .5rem;border-bottom:1px solid var(--line);vertical-align:top}
+  table.ledger tr.sec td{background:var(--grey-soft);font-weight:600}
+  table.ledger td.f{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.76rem;color:var(--ink-2)}
+  table.ledger td.r{text-align:right;white-space:nowrap;font-weight:500}
+  table.ledger tr.note td{font-size:.76rem;color:var(--ink-2);background:#FBFCFD;padding:.4rem .5rem .6rem;border-bottom:1px solid var(--line)}
+  table.ledger tr:last-child td{border-bottom:0}
+
+  .actions{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+  .btn{padding:.45rem .8rem;border:1px solid var(--brand);background:var(--brand);color:#fff;border-radius:var(--r);cursor:pointer;text-decoration:none;display:inline-block}
+  .btn.ghost{background:transparent;color:var(--brand)} .btn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+  .cta{padding:.9rem;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+  [hidden]{display:none !important}
+  @media print{.actions,.cta,.submit{display:none} .wrap{padding:0} .panel{break-inside:avoid;border:0;margin-bottom:1rem}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div style="display:flex;align-items:center;gap:1.1rem">
+  <a href="https://www.medoma.com" aria-label="Medoma" style="color:var(--ink);line-height:0;flex:none"><svg width="61" height="61" viewBox="41 41 85 85" fill="currentColor" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" overflow="hidden"><g transform="translate(-1260 -349)"><path d="M77.3388 64.5638 66.562 64.5638 66.562 89.4723 41.6535 89.4723 41.6535 100.249 66.562 100.249 66.562 125.161 77.3388 125.161 77.3388 100.249 102.25 100.249 102.25 89.4723 77.3388 89.4723Z" transform="matrix(1.00106 0 0 1 1260.02 349)"/><path d="M91.7618 41.7123 84.1427 49.3314 114.354 79.5401 114.354 125.131 125.131 125.131 125.131 75.0787Z" transform="matrix(1.00106 0 0 1 1260.02 349)"/></g></svg></a>
+  <div class="lede">
+    <h1>Hur mycket mer skulle ert Hospital at Home-team hinna med?</h1>
+    <p class="muted small">Uppskatta kapaciteten Medoma frigör i er Hospital at Home- eller hemsjukvårdsverksamhet. Beskriv er verksamhet, välj hur stor effekt ni vill anta, och se resultatet – med hela uträkningen bakom.</p>
+  </div>
+  <div style="margin-left:auto;align-self:flex-start;font-size:.8rem;white-space:nowrap"><a href="index.html" onclick="localStorage.setItem('lang','en')" style="text-decoration:none">EN</a> · <b>SV</b></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="toprow">
+    <!-- ===== LEFT: YOUR SERVICE TODAY ===== -->
+    <section class="panel" aria-labelledby="h-in">
+      <div class="ph"><h2 id="h-in">Er verksamhet i dag</h2></div>
+
+      <div class="grp">
+        <h3>Volym</h3>
+        <div class="field">
+          <label for="sites">Antal enheter eller team</label>
+          <div><input id="sites" type="number" min="1" step="1"><span class="unit">enheter</span></div>
+        </div>
+        <div class="field">
+          <label for="census">Inskrivna patienter en genomsnittlig dag, alla enheter</label>
+          <div><input id="census" type="number" min="1" step="1"><span class="unit">patienter</span></div>
+          <div class="hint" id="per-site" hidden></div>
+        </div>
+        <div class="field" id="f-coop" hidden>
+          <label for="coop">Delar enheterna personal eller planering?</label>
+          <div><select id="coop"><option value="no">Nej, varje enhet planerar själv</option><option value="yes">Ja, kapaciteten delas</option></select></div>
+        </div>
+        <div class="field">
+          <label for="vpd">Hembesök av sjuksköterska per patient och dag</label>
+          <div><input id="vpd" type="number" min="0.1" step="0.1"><span class="unit">/dag</span></div>
+        </div>
+        <div class="field">
+          <label for="mdcons">Läkarkonsultationer per patient och dag</label>
+          <div><input id="mdcons" type="number" min="0" step="0.1"><span class="unit">/dag</span></div>
+          <div class="hint">Rondfrekvensen varierar mellan verksamheter &ndash; daglig enligt sjukhusrutin i vissa, vid behov i andra.</div>
+        </div>
+        <div class="field">
+          <label for="days">Driftdagar per år</label>
+          <div><input id="days" type="number" min="1" max="366" step="1"><span class="unit">dagar</span></div>
+        </div>
+      </div>
+
+      <div class="grp">
+        <h3>Ert typiska hembesök</h3>
+        <div class="field"><label for="travel">Restid per besök</label><div><input id="travel" type="number" min="0" step="1"><span class="unit">min</span></div><div class="hint">Båda riktningarna, dörr till dörr.</div></div>
+        <div class="field"><label for="dur">Tid hos patienten</label><div><input id="dur" type="number" min="1" step="1"><span class="unit">min</span></div></div>
+        <div class="field"><label for="km">Körsträcka per hembesök</label><div><input id="km" type="number" min="0" step="1"><span class="unit">km</span></div><div class="hint">Båda riktningarna.</div></div>
+      </div>
+
+
+    </section>
+
+    <!-- ===== MIDDLE: HOW DIGITAL ===== -->
+    <section class="panel" aria-labelledby="h-dig">
+      <div class="ph"><h2 id="h-dig">Hur digital är er verksamhet i dag?</h2></div>
+      <div class="grp">
+        <div class="hint" style="padding:.15rem 0 .3rem">Gör en grov uppskattning per rad: med ungefär hur stor andel av era patienter använder ni detta i dag?</div>
+        <div class="field"><label for="dvideo">Läkarkonsultationer via video</label><div><input id="dvideo" type="number" min="0" max="100" step="1"><span class="unit">% av patienterna</span></div></div>
+        <div class="field"><label for="drpm">Distansmonitorering av vitalparametrar och andra mätvärden</label><div><input id="drpm" type="number" min="0" max="100" step="1"><span class="unit">% av patienterna</span></div></div>
+        <div class="field"><label for="dchat">Chattinteraktion med patienter</label><div><input id="dchat" type="number" min="0" max="100" step="1"><span class="unit">% av patienterna</span></div></div>
+        <div class="field"><label for="dself">Egenvårdsaktiviteter som patienter rapporterar</label><div><input id="dself" type="number" min="0" max="100" step="1"><span class="unit">% av patienterna</span></div></div>
+      </div>
+
+      <div class="grp">
+        <h3>Planering</h3>
+        <div class="field">
+          <label for="coordh">Tid för planering och samordning per enhet och dag</label>
+          <div><input id="coordh" type="number" min="0" step="0.5"><span class="unit">h/dag</span></div>
+        </div>
+        <div style="padding:.4rem 0 .1rem">
+          <label for="ptool" style="font-size:.88rem">Hur planerar ni i dag?</label>
+          <input id="ptool" type="range" min="0" max="2" step="1" style="width:100%;margin:.35rem 0 .1rem;accent-color:var(--burg)" aria-valuetext="Whiteboard, papper &amp; telefon">
+          <div id="ptool-labels" style="display:flex;justify-content:space-between;font-size:.74rem;color:var(--ink-2)">
+            <span data-i="0" style="text-align:left">Whiteboard,<br>papper &amp; telefon</span>
+            <span data-i="1" style="text-align:center">Kalkylblad</span>
+            <span data-i="2" style="text-align:right">Integrerad<br>digital planering</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== RIGHT: WHAT MEDOMA CHANGES ===== -->
+    <section class="panel" aria-labelledby="h-lev">
+      <div class="ph"><h2 id="h-lev">Vad Medoma förändrar</h2></div>
+      <div class="grp" style="border-top:0;padding-bottom:.2rem"><div class="hint">Tre effektnivåer, alla förankrade i vad vi mäter i Medoma-drift &ndash; välj hur mycket ni vill anta.</div></div>
+      <div class="scards" role="radiogroup" aria-label="Scenario">
+        <button type="button" class="scard" data-scen="low" aria-pressed="false">
+          <div class="t">Försiktig</div>
+        </button>
+        <button type="button" class="scard" data-scen="base" aria-pressed="true">
+          <div class="t">Typisk</div>
+        </button>
+        <button type="button" class="scard" data-scen="high" aria-pressed="false">
+          <div class="t">Ambitiös</div>
+        </button>
+      </div>
+
+      <table class="svals" id="svals" aria-label="Scenario values"></table>
+
+      <div class="submit">
+        <button type="button" class="btn" id="show">Visa mitt resultat</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===== RESULTS (hidden until submit) ===== -->
+  <section class="panel" aria-labelledby="h-res" id="results" hidden>
+    <div class="ph">
+      <h2 id="h-res">Med Medoma skulle ert team kunna ta hand om</h2>
+      <div class="actions">
+        <span class="small muted" id="scenlabel">Typisk-scenariot</span>
+        <button type="button" class="btn ghost" id="copy">Kopiera sammanfattning</button>
+        <button type="button" class="btn ghost" onclick="window.print()">Skriv ut</button>
+      </div>
+    </div>
+    <div class="hero"><div class="n" id="h-cap">–</div><div class="l" id="h-cap-l"></div></div>
+    <div class="kpis" id="kpis"></div>
+    <div class="bars" id="bars"></div>
+    <div class="rescheck">
+      Kontroll mot det vi har mätt: modellen ger <span class="n" id="k-uplift">–</span> fler patienter per sjuksköterska. I Medoma-drift har vi uppmätt cirka +20 % i en före/efter-jämförelse. Ligger ert resultat långt över det är scenariot troligen för ambitiöst för ett första år.
+    </div>
+    <div class="rescheck" style="border-top:0;padding-top:0"><span class="small muted">* Antar att besöken körs med fossildrivna fordon, cirka 140 g CO₂ per km för en modern bensin- eller dieselbil.<br>** Värderat med europeiska referenstaxor inkl. arbetsgivarkostnader – sjuksköterska €45/h, läkare €100/h, samordning €40/h, fordon €0.8/km. Ersätt med era egna taxor i dialog med oss; detta är bruttovärdet av frigjord tid, inte netto-ROI.</span></div>
+    <div class="cta">
+      <div><strong>Vill ni gå igenom siffrorna för er verksamhet?</strong><div class="small muted">Vi går gärna igenom antagandena tillsammans med era egna siffror.</div></div>
+      <a class="btn" href="https://www.medoma.com/contact">Prata med oss</a>
+    </div>
+    <div class="cta" style="align-items:flex-end">
+      <div style="flex:1;min-width:260px">
+        <strong>Eller skicka ert resultat till oss</strong>
+        <div class="small muted" style="margin-bottom:.5rem">Vi får bara det ni ser på den här sidan, tillsammans med era kontaktuppgifter.</div>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <input id="lead-email" type="email" placeholder="Arbetsmejl" autocomplete="email" style="flex:1;min-width:170px;padding:.45rem .6rem;border:1px solid var(--line);border-radius:var(--r)">
+          <input id="lead-org" type="text" placeholder="Organisation" autocomplete="organization" style="flex:1;min-width:150px;padding:.45rem .6rem;border:1px solid var(--line);border-radius:var(--r)">
+        </div>
+      </div>
+      <button type="button" class="btn" id="lead-send">Skicka mitt resultat</button>
+    </div>
+  </section>
+
+  <!-- ===== LEDGER (hidden until submit) ===== -->
+  <section class="panel" aria-labelledby="h-led" id="ledgerpanel" hidden>
+    <div class="ph" style="cursor:pointer" id="ledgertoggle">
+      <h2 id="h-led">Så räknar vi, steg för steg <span class="small muted" id="ledgerchev" style="font-weight:400">▸ visa</span></h2>
+      <span class="small muted"><span class="badge b-input">Era värden</span> ifyllda av er · <span class="badge b-meas">Uppmätt</span> uppmätt i Medoma-drift · <span class="badge b-est">Antagande</span> vårt öppet redovisade antagande</span>
+    </div>
+    <div style="padding:0" id="ledgerbody" hidden>
+      <table class="ledger" id="ledger">
+        <thead><tr><th style="width:34%">Steg</th><th>Formel med era värden</th><th style="text-align:right">Resultat</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ---------- STATE ---------- */
+const RDUR = 10;   // min per remote contact — measured constant
+const CO2KM = 0.14; // kg CO2 per km, modern petrol/diesel car, real-world
+const DIGIW = { rpm:4, chat:2, self:2 }; // max percentage points of nurse visits substituted at 100 % patient coverage (estimate)
+const RPMMIN = 5; // min shorter per home visit when values are pre-reported (clinical estimate)
+const MDDUR = 30; // min physician spends at the bedside on a physical round (clinical estimate)
+const MDVID = 8;  // min a video round takes (observed in live services)
+const LEAD_ENDPOINT = ''; // e.g. 'https://formspree.io/f/XXXXXXX' — leave empty to fall back to a prefilled email
+const RATE = { nurse:45, md:100, coord:40, km:0.8 }; // EUR reference rates incl. employer costs (estimate)
+const PTOOL = { paper:{f:1.0,label:'whiteboard, papper & telefon'}, sheets:{f:0.9,label:'kalkylblad'}, digital:{f:0.75,label:'integrerad digital planering'} }; // share of the coordination gain still available (estimate)
+const DEFAULTS = { sites:1, coop:'no', census:15, vpd:1.0, days:365, travel:25, dur:30, km:12, coordh:8, mdcons:1.0, ptool:'paper',
+                   dvideo:0, drpm:0, dchat:0, dself:0 };
+const SCENARIOS = {
+  low:  { label:'Försiktig',  remoteT:25, route:8,  coord:20, pool:2, real:50, mdT:70, rpmT:60 },
+  base: { label:'Typisk',   remoteT:30, route:12, coord:30, pool:4, real:70, mdT:85, rpmT:80 },
+  high: { label:'Ambitiös', remoteT:35, route:18, coord:40, pool:7, real:85, mdT:95, rpmT:90 },
+};
+let state = { ...DEFAULTS, scen:'base' };
+
+/* ---------- MODEL ---------- */
+function compute(s){
+  const sc = SCENARIOS[s.scen];
+  const r0 = Math.round(10*(s.drpm*DIGIW.rpm + s.dchat*DIGIW.chat + s.dself*DIGIW.self)/100)/10;
+  const visits      = s.census * s.vpd * s.days;
+  const inc         = Math.max(0, sc.remoteT - r0) / 100;
+  const remoteVis   = visits * inc;
+  const physVis     = visits - remoteVis;
+  const minPerVisit = s.travel + s.dur;
+  const savedMinSub = Math.max(0, minPerVisit - RDUR);
+  const baseNurseH  = visits * minPerVisit / 60;
+  const h1  = remoteVis * savedMinSub / 60;
+  const h2  = physVis * s.travel * (sc.route/100) / 60;
+  const ptool = PTOOL[s.ptool] || PTOOL.paper;
+  const h3  = s.coordh * s.sites * s.days * (sc.coord/100) * ptool.f;
+  const pooled = s.sites>1 && s.coop==='yes';
+  const h4  = pooled ? baseNurseH * sc.pool/100 : 0;
+  // Remote monitoring: shorter remaining visits (values pre-reported)
+  const incRpm = Math.max(0, sc.rpmT - s.drpm) / 100;
+  const h5  = physVis * RPMMIN * incRpm / 60;
+  // Physician rounds by video: travel disappears, consultation time unchanged
+  const mdCons = s.census * s.mdcons * s.days;
+  const incMd  = Math.max(0, sc.mdT - s.dvideo) / 100;
+  const mdSub  = mdCons * incMd;
+  const mdSaveMin = Math.max(0, s.travel + MDDUR - MDVID);
+  const mdH    = mdSub * mdSaveMin / 60;
+  const kmSaved = remoteVis * s.km + physVis * s.km * (sc.route/100);
+  const co2Saved = kmSaved * CO2KM; // kg
+  const r   = sc.real/100;
+  const freedNurseH = h1 + h2 + h4 + h5;
+  const freedRealH = freedNurseH * r, coordRealH = h3 * r, mdRealH = mdH * r;
+  const uplift = baseNurseH>0 ? freedNurseH/baseNurseH : 0;
+  const minPerPtDay = s.vpd * minPerVisit;
+  const extraPtDays = minPerPtDay>0 ? (freedRealH*60)/minPerPtDay : 0;
+  const extraCensus = s.days>0 ? extraPtDays / s.days : 0;
+  const capPct = s.census>0 ? extraCensus / s.census : 0;
+  const eurNurse = freedRealH * RATE.nurse;
+  const eurMd    = mdRealH * RATE.md;
+  const eurCoord = coordRealH * RATE.coord;
+  const eurKm    = kmSaved * RATE.km;
+  const eurTotal = eurNurse + eurMd + eurCoord + eurKm;
+  return { sc, r0, visits, inc, remoteVis, physVis, minPerVisit, savedMinSub, baseNurseH, h1, h2, h3, h4, pooled, ptool, kmSaved, co2Saved, r, incRpm, h5, mdCons, incMd, mdSub, mdSaveMin, mdH, mdRealH, eurNurse, eurMd, eurCoord, eurKm, eurTotal,
+           freedNurseH, freedRealH, coordRealH, uplift, minPerPtDay, extraPtDays, extraCensus, capPct };
+}
+
+/* ---------- FORMAT ---------- */
+const num = (n,d=0) => isFinite(n) ? n.toLocaleString('en-GB',{maximumFractionDigits:d,minimumFractionDigits:d}).replace(/,/g,'\u202F') : '–';
+const pct = n => isFinite(n) ? Math.round(n*100) + ' %' : '–';
+const badge = (cls,txt) => `<span class="badge ${cls}">${txt}</span>`;
+const co2fmt = kg => kg>=1000 ? num(kg/1000,1)+' ton' : num(kg)+' kg';
+const LEAF = '<svg width="13" height="13" viewBox="0 0 24 24" fill="#3E8E5A" aria-hidden="true" style="vertical-align:-1px"><path d="M20 4c-8 0-14 3-15.6 10.6-.6 3 .4 5.4.4 5.4s.6-2.6 3.2-5.2C10.5 12.3 14 11 14 11s-4.5 2.6-7 6.2C5.6 19.3 5.2 21 5.2 21S8 22 11 21.4C19 19.8 21 12 20 4z"/></svg>';
+
+/* ---------- RENDER ---------- */
+function render(){
+  const c = compute(state), s = state, sc = c.sc;
+
+  document.getElementById('f-coop').hidden = !(s.sites>1);
+  const ps = document.getElementById('per-site');
+  ps.hidden = !(s.sites>1);
+  ps.textContent = s.sites>1 ? `Cirka ${num(s.census/s.sites)} patienter per enhet.` : '';
+  document.getElementById('scenlabel').textContent = sc.label + '-scenariot';
+
+  document.querySelectorAll('.scard').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.scen===s.scen)));
+  const rows = [
+    ['Större andel patientkontakter och aktiviteter hanteras på distans', '\u2192 ' + sc.remoteT + ' %'],
+    ['Kortare restid genom ruttoptimering', '\u2212 ' + sc.route + ' %'],
+    ['Mindre tid för planering och samordning', '\u2212 ' + sc.coord + ' %'],
+    ['Realiseringsgrad på frigjord personaltid', sc.real + ' %'],
+  ];
+  document.getElementById('svals').innerHTML =
+    `<tr><td style="border-bottom:0;padding:.3rem .35rem .05rem"></td><td class="v" style="border-bottom:0;padding:.3rem .35rem .05rem;font-weight:500;color:var(--ink-2);font-size:.74rem">Mål</td></tr>` +
+    rows.map(r => `<tr><td>${r[0]}</td><td class="v">${r[1]}</td></tr>`).join('');
+
+  document.getElementById('h-cap').textContent = `+${pct(c.capPct)} fler patienter`;
+  document.getElementById('h-cap-l').textContent = `med den bemanning ni har i dag – cirka ${num(c.extraCensus,1)} fler inskrivna patienter en genomsnittlig dag, eller ${num(c.extraPtDays)} fler patientdygn hemma per år.`;
+
+  document.getElementById('kpis').innerHTML = `
+    <div class="kpi"><div class="n">\u20AC ${num(c.eurTotal/1000)} k</div><div class="l">årligt värde av frigjord tid och körning\u2009**</div></div>
+    <div class="kpi"><div class="n">${num((c.freedRealH+c.mdRealH)/52)} h</div><div class="l">klinisk personaltid frigjord per vecka</div></div>
+    <div class="kpi"><div class="n">${num(c.coordRealH/52)} h</div><div class="l">planerings- och samordningstid frigjord per vecka</div></div>
+    <div class="kpi"><div class="n">${num(c.kmSaved)} km</div><div class="l">mindre bilkörning per år<br>${LEAF} ≈ ${co2fmt(c.co2Saved)} CO\u2082 undviks per år\u2009*</div></div>`;
+
+  const hh = [['Distanskontakter ersätter hembesök', (c.h1+c.h5)*c.r + c.mdRealH], ['Kortare restid', c.h2*c.r], ['Mindre samordning', c.coordRealH]];
+  if (c.pooled) hh.push(['Delad planering mellan enheter', c.h4*c.r]);
+  const max = Math.max(...hh.map(x=>x[1]),1);
+  document.getElementById('bars').innerHTML = hh.map(([l,v]) => `<div class="bar"><div class="lbl">${l}</div><div class="track"><div class="fill" style="width:${v/max*100}%"></div></div><div class="amt">${num(v)} h/år</div></div>`).join('') +
+    `<div class="bar total"><div class="lbl">Frigjord personaltid per år</div><div></div><div class="amt">${num(c.freedRealH+c.mdRealH+c.coordRealH)} h</div></div>`;
+
+  document.getElementById('k-uplift').textContent = '+'+pct(c.uplift);
+
+  const NOTE = {
+    remote: `${badge('b-meas','Uppmätt')} I Medoma-drift hanteras cirka 30 % av sjuksköterskans patientkontakter på distans – Typisk-scenariot använder exakt det som mål. Digitala verktyg ni redan använder minskar det kvarvarande utrymmet, men bara måttligt: utan integrerad planering tenderar digitala kontakter att läggas ovanpå besöken snarare än i stället för dem, så vi tillgodoräknar monitorering högst 4, chatt 2 och egenvård 2 procentenheter redan ersatta besök vid full täckning. ${badge('b-est','Antagande')} En distanskontakt tar cirka 10 minuter – ett videosamtal på 7 minuter plus chatt och granskning av patientens inskickade vitalparametrar eller formulär. ${badge('b-meas','Uppmätt')} Chatt och patientrapporterade aktiviteter gör dessutom kommunikationen säkrare och besöken mer träffsäkra – verkliga effekter som vi medvetet inte räknar om till timmar.`,
+    md: `${badge('b-est','Antagande')} En fysisk rond kostar läkaren restiden plus cirka ${MDDUR} minuter vid sängen – ofta utsträckt av samåkningen med sjuksköterskan, som har sina egna uppgifter på samma adress – medan en videorond tar cirka ${MDVID} minuter. ${badge('b-meas','Uppmätt')} Vi räknar skillnaden, och inget annat: dokumentation utesluts på båda sidor, och ingen körsträcka tillgodoräknas här eftersom bilen typiskt åker med sjuksköterskan ändå. En andel patienter behöver alltid läkaren på plats, och därför stannar även Ambitiös-målet under 100 %. Er nuvarande andel videokonsultationer minskar det som återstår att vinna.`,
+    rpm: `${badge('b-est','Antagande')} Distansmonitorering ersätter sällan ett besök – antibiotikan kl. 08 kräver ändå att någon är där – men när vitalparametrarna redan är rapporterade och granskade blir besöket kortare och bättre förberett: vi räknar ${RPMMIN} minuter per kvarvarande besök, en klinisk uppskattning. Tidigare varning om försämring och undvikta eskaleringar är verkliga tilläggseffekter som vi medvetet inte räknar om till timmar.`,
+    travel: `${badge('b-est','Antagande')} Vi publicerar ännu inte en uppmätt siffra för ruttoptimering. Det vi har mätt är storleken på själva rutthävstången: i en simulering på verkliga driftdata från flera enheter flyttade enbart ruttstrukturen körsträckan med i storleksordningen 20 %. Scenarierna antar att optimering återtar en del av det – 8, 12 eller 18 % – aldrig allt, eftersom tidsfönster, medicinsk prioritet och trafik står i vägen för perfekta rutter. CO\u2082-raden antar fossildrivna fordon, cirka 140 g CO\u2082 per km för en modern bensin- eller dieselbil.`,
+    coord: `${badge('b-est','Antagande')} Planeringstiden anges per enhet, så beräkningen multiplicerar den med ert antal enheter. Vad ni planerar med i dag spelar roll: en whiteboard-och-telefon-verksamhet har hela vinsten framför sig, och kalkylblad eller ett fristående planeringsverktyg bara något mindre – faktorerna 1.0 / 0.9 / 0.75 är vårt öppet redovisade antagande – generiska verktyg organiserar tavlan, men själva samordningsarbetet kvarstår tills planeringen är integrerad med vårdflödet. Standardvärdena är medvetet låga.`,
+    pool: `${badge('b-est','Antagande')} Gäller bara när enheter faktiskt delar personal eller planering: toppar på en enhet absorberas av luft i en annan i stället för av extra bemanning. Ännu ingen publicerad siffra.`,
+    eur: `${badge('b-est','Antagande')} Tim- och fordonstaxorna är runda europeiska referensvärden inklusive arbetsgivarkostnader – ersätt dem med era egna. Detta är bruttovärdet av den frigjorda tiden och körningen; det säger inget om vad Medoma kostar, och är alltså en värdesiffra, inte en avkastningssiffra.`,
+    cap: `${badge('b-est','Antagande')} Frigjorda minuter blir fler patienter först när scheman och patientinflöde tillåter det, så vi räknar aldrig 100 % – scenarierna räknar 50, 70 eller 85 % av frigjord personaltid. Korskontroll: den uppmätta ökningen på ~20 % patienter per sjuksköterska i drift är förenlig med en realiseringsgrad kring 70 %.`,
+    check: `Referensvärdena kommer från Medoma Intelligence i drift i Sverige, Schweiz och Lettland, 2025–2026 [n patientdygn, period]; de ~20 % fler patienterna per sjuksköterska är en före/efter-jämförelse vid [verksamhet, period, n patientdygn]. Medvetet utelämnat: färre återinläggningar, kortare vårdtid, patient- och medarbetarnöjdhet – verkliga effekter, men de tillhör Hospital at Home som vårdform snarare än plattformen. Fullständig metodnot på begäran.`,
+  };
+
+  const L = [
+    ['sec','Utgångsläge'],
+    ['Hembesök per år', `${s.census} patienter × ${num(s.vpd,1)} besök/dag × ${s.days} dagar`, num(c.visits)],
+    ['Sjukskötersketid per hembesök', `${s.travel} min restid + ${s.dur} min hos patienten`, num(c.minPerVisit)+' min'],
+    ['Sjukskötersketid i besök per år', `${num(c.visits)} × ${num(c.minPerVisit)} min ÷ 60`, num(c.baseNurseH)+' h'],
+    ['sec','Distanskontakter ersätter sjuksköterskans hembesök'],
+    ['Besök som redan ersätts digitalt i dag', `${s.dvideo} % × 0.04 + ${s.drpm} % × 0.04 + ${s.dchat} % × 0.02 + ${s.dself} % × 0.02`, num(c.r0,1)+' %'],
+    ['Målandel med Medoma', `${sc.label}-scenariot`, sc.remoteT+' %'],
+    ['Ytterligare andel som flyttas till distans', `${sc.remoteT} % − ${num(c.r0,1)} %`, num(c.inc*100,1)+' %'],
+    ['Ersatta besök', `${num(c.visits)} × ${num(c.inc*100,1)} %`, num(c.remoteVis)],
+    ['Sparad tid per ersatt besök', `${num(c.minPerVisit)} min − ${RDUR} min distanskontakt`, num(c.savedMinSub)+' min'],
+    ['Frigjord sjukskötersketid', `${num(c.remoteVis)} × ${num(c.savedMinSub)} min ÷ 60`, num(c.h1)+' h'],
+    ['note', NOTE.remote],
+    ['sec','Läkarrond via video'],
+    ['Läkarkonsultationer per år', `${s.census} patienter × ${num(s.mdcons,1)}/dag × ${s.days} dagar`, num(c.mdCons)],
+    ['Redan via video i dag', 'ert värde', s.dvideo+' %'],
+    ['Ytterligare konsultationer som flyttas till video', `(${sc.mdT} % − ${s.dvideo} %) × ${num(c.mdCons)}`, num(c.mdSub)],
+    ['Läkartid per fysisk rond', `${s.travel} min restid + ${MDDUR} min vid sängen`, num(s.travel+MDDUR)+' min'],
+    ['En videorond tar', 'observerat i drift', MDVID+' min'],
+    ['Frigjord läkartid', `${num(c.mdSub)} × (${num(s.travel+MDDUR)} − ${MDVID}) min ÷ 60`, num(c.mdH)+' h'],
+    ['note', NOTE.md],
+    ['sec','Kortare besök genom distansmonitorering'],
+    ['Sparad tid per besök när värden är förrapporterade', 'klinisk uppskattning', RPMMIN+' min'],
+    ['Täckningsgap att stänga', `${sc.rpmT} % mål − ${s.drpm} % i dag`, Math.round(c.incRpm*100)+' %'],
+    ['Frigjord sjukskötersketid', `${num(c.physVis)} besök × ${RPMMIN} min × ${Math.round(c.incRpm*100)} % ÷ 60`, num(c.h5)+' h'],
+    ['note', NOTE.rpm],
+    ['sec','Kortare resor'],
+    ['Kvarvarande hembesök', `${num(c.visits)} − ${num(c.remoteVis)}`, num(c.physVis)],
+    ['Frigjord restid', `${num(c.physVis)} × ${s.travel} min × ${sc.route} % ÷ 60`, num(c.h2)+' h'],
+    ['Undviken körning', `${num(c.remoteVis)} × ${s.km} km + ${num(c.physVis)} × ${s.km} km × ${sc.route} %`, num(c.kmSaved)+' km'],
+    ['Undviken CO\u2082', `${num(c.kmSaved)} km × ${CO2KM} kg/km`, co2fmt(c.co2Saved)+' *'],
+    ['note', NOTE.travel],
+    ['sec','Mindre samordning'],
+    ['Planeringstid i dag, alla enheter', `${s.coordh} h/dag × ${s.sites} enhet(er)`, num(s.coordh*s.sites,1)+' h/dag'],
+    ['Justerat för hur ni planerar i dag', `${c.ptool.label}`, '× '+c.ptool.f],
+    ['Frigjord samordningstid', `${num(s.coordh*s.sites,1)} h/dag × ${s.days} dagar × ${sc.coord} % × ${c.ptool.f}`, num(c.h3)+' h'],
+    ['note', NOTE.coord],
+    ...(c.pooled ? [['sec','Delad planering mellan enheter'], ['Frigjord sjukskötersketid', `${num(c.baseNurseH)} h × ${sc.pool} %`, num(c.h4)+' h'], ['note', NOTE.pool]] : []),
+    ['sec','Kapacitet'],
+    ['Frigjord sjukskötersketid, realiserad', `(${num(c.h1)} + ${num(c.h2)} + ${num(c.h5)}${c.pooled?' + '+num(c.h4):''}) h × ${sc.real} %`, num(c.freedRealH)+' h'],
+    ['Sjukskötersketid per patientdygn i dag', `${num(s.vpd,1)} besök × ${num(c.minPerVisit)} min`, num(c.minPerPtDay,1)+' min'],
+    ['Ytterligare patientdygn hemma', `${num(c.freedRealH)} h × 60 ÷ ${num(c.minPerPtDay,1)} min`, num(c.extraPtDays)],
+    ['Fler patienter en genomsnittlig dag', `${num(c.extraPtDays)} ÷ ${s.days} dagar`, num(c.extraCensus,1)],
+    ['Fler patienter med samma bemanning', `${num(c.extraCensus,1)} ÷ ${s.census}`, '+'+pct(c.capPct)],
+    ['note', NOTE.cap],
+    ['sec','Vad det är värt'],
+    ['Sjukskötersketid', `${num(c.freedRealH)} h × \u20AC${RATE.nurse}`, '\u20AC '+num(c.eurNurse)],
+    ['Läkartid', `${num(c.mdRealH)} h × \u20AC${RATE.md}`, '\u20AC '+num(c.eurMd)],
+    ['Samordningstid', `${num(c.coordRealH)} h × \u20AC${RATE.coord}`, '\u20AC '+num(c.eurCoord)],
+    ['Körning', `${num(c.kmSaved)} km × \u20AC${RATE.km}`, '\u20AC '+num(c.eurKm)],
+    ['Årligt värde, brutto', 'summan av raderna ovan', '\u20AC '+num(c.eurTotal)],
+    ['note', NOTE.eur],
+    ['sec','Kontroll'],
+    ['Implicit ökning av patienter per sjuksköterska', `(${num(c.h1)} + ${num(c.h2)} + ${num(c.h5)}${c.pooled?' + '+num(c.h4):''}) h ÷ ${num(c.baseNurseH)} h`, '+'+pct(c.uplift)],
+    ['note', NOTE.check],
+  ];
+  document.querySelector('#ledger tbody').innerHTML = L.map(r =>
+    r[0]==='sec'  ? `<tr class="sec"><td colspan="3">${r[1]}</td></tr>` :
+    r[0]==='note' ? `<tr class="note"><td colspan="3">${r[1]}</td></tr>` :
+    `<tr><td>${r[0]}</td><td class="f">${r[1]}</td><td class="r">${r[2]}</td></tr>`).join('');
+}
+
+/* ---------- WIRING ---------- */
+Object.keys(DEFAULTS).filter(k => !['coop','ptool'].includes(k)).forEach(id => {
+  const el = document.getElementById(id); el.value = state[id];
+  el.addEventListener('input', e => { const v = parseFloat(String(e.target.value).replace(',','.')); state[id] = isNaN(v)?0:v; render(); });
+});
+const PTOOL_KEYS = ['paper','sheets','digital'];
+function syncPtoolLabels(){
+  document.querySelectorAll('#ptool-labels span').forEach(el => {
+    const on = PTOOL_KEYS[+el.dataset.i] === state.ptool;
+    el.style.color = on ? 'var(--burg)' : 'var(--ink-2)';
+    el.style.fontWeight = on ? '600' : '400';
+  });
+  document.getElementById('ptool').setAttribute('aria-valuetext', PTOOL[state.ptool].label);
+}
+document.getElementById('ptool').value = PTOOL_KEYS.indexOf(state.ptool);
+document.getElementById('ptool').addEventListener('input', e => { state.ptool = PTOOL_KEYS[+e.target.value] || 'paper'; syncPtoolLabels(); render(); });
+syncPtoolLabels();
+document.getElementById('coop').value = state.coop;
+document.getElementById('coop').addEventListener('change', e => { state.coop = e.target.value; render(); });
+document.querySelectorAll('.scard').forEach(b => b.addEventListener('click', () => { state.scen = b.dataset.scen; render(); }));
+document.getElementById('ledgertoggle').addEventListener('click', () => {
+  const b = document.getElementById('ledgerbody');
+  b.hidden = !b.hidden;
+  document.getElementById('ledgerchev').textContent = b.hidden ? '\u25B8 visa' : '\u25BE dölj';
+});
+document.getElementById('show').addEventListener('click', () => {
+  document.getElementById('results').hidden = false;
+  document.getElementById('ledgerpanel').hidden = false;
+  render();
+  document.getElementById('results').scrollIntoView({behavior:'smooth', block:'start'});
+});
+function summaryText(){
+  const c = compute(state), s = state;
+  return `Medoma – kapacitetsuppskattning (${c.sc.label}-scenariot)
+Verksamhet: ${s.census} patienter på ${s.sites} enhet(er)${c.pooled?' med delad planering':''}, ${num(s.vpd,1)} hembesök per patientdygn, ${num(c.r0,1)} % av besöken redan digitalt ersatta
+Resultat: +${pct(c.capPct)} fler patienter med samma bemanning (${num(c.extraCensus,1)} fler inskrivna, ${num(c.extraPtDays)} fler patientdygn/år)
+Årligt värde av frigjord tid och körning: \u2248 \u20AC${num(c.eurTotal/1000)}k (referenstaxor). Klinisk personaltid frigjord: ${num((c.freedRealH+c.mdRealH)/52)} h/vecka. Samordning: ${num(c.coordRealH/52)} h/vecka. Undviken körning: ${num(c.kmSaved)} km/år (≈ ${co2fmt(c.co2Saved)} CO\u2082, fossildrivna fordon).
+Scenario: distansmål ${c.sc.remoteT} %, restid −${c.sc.route} %, samordning −${c.sc.coord} %${c.pooled?', delad planering +'+c.sc.pool+' %':''}, realisering ${c.sc.real} %`;
+}
+document.getElementById('lead-send').addEventListener('click', async () => {
+  const email = document.getElementById('lead-email').value.trim();
+  const org = document.getElementById('lead-org').value.trim();
+  const body = `From: ${email||'-'}\nOrganisation: ${org||'-'}\n\n` + summaryText();
+  if (LEAD_ENDPOINT) {
+    const btn = document.getElementById('lead-send');
+    try {
+      const res = await fetch(LEAD_ENDPOINT, { method:'POST', headers:{'Accept':'application/json','Content-Type':'application/json'},
+        body: JSON.stringify({ email, organisation: org, summary: summaryText() }) });
+      btn.textContent = res.ok ? 'Skickat – tack!' : 'Kunde inte skicka – försök igen';
+    } catch(e) { btn.textContent = 'Kunde inte skicka – försök igen'; }
+    setTimeout(()=>{ btn.textContent='Skicka mitt resultat'; }, 3000);
+  } else {
+    location.href = 'mailto:info@medoma.se?subject=' + encodeURIComponent('Kapacitetsuppskattning från Medomas kalkylator') + '&body=' + encodeURIComponent(body);
+  }
+});
+document.getElementById('copy').addEventListener('click', async () => {
+  const c = compute(state), s = state;
+  const txt = summaryText() + '\nFullständig uträkning och källor: medoma.com';
+  try { await navigator.clipboard.writeText(txt); const b=document.getElementById('copy'); b.textContent='Kopierat'; setTimeout(()=>b.textContent='Kopiera sammanfattning',1500); }
+  catch(e){ alert(txt); }
+});
+render();
+</script>
+</body>
+</html>
