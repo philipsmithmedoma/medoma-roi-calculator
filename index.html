@@ -353,16 +353,16 @@ function render(){
 
   document.querySelectorAll('.scard').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.scen===s.scen)));
   const rows = [
-    ['Higher share of patient contacts and activities handled remotely', '\u2192 ' + sc.remoteT + ' %'],
-    ['Shorter travel time through route optimisation', '\u2212 ' + sc.route + ' %'],
-    ['Less time on planning and coordination', '\u2212 ' + sc.coord + ' %'],
+    ['Higher share of patient contacts and activities handled remotely', sc.remoteT + ' %'],
+    ['Shorter travel time through route optimisation', sc.route + ' %'],
+    ['Less time on planning and coordination', sc.coord + ' %'],
     ['Realisation rate on freed staff time', sc.real + ' %'],
   ];
   document.getElementById('svals').innerHTML =
     `<tr><td style="border-bottom:0;padding:.3rem .35rem .05rem"></td><td class="v" style="border-bottom:0;padding:.3rem .35rem .05rem;font-weight:500;color:var(--ink-2);font-size:.74rem">Target</td></tr>` +
     rows.map(r => `<tr><td>${r[0]}</td><td class="v">${r[1]}</td></tr>`).join('');
 
-  document.getElementById('h-cap').textContent = `+${pct(c.capPct)} more patients`;
+  document.getElementById('h-cap').textContent = `${pct(c.capPct)} more patients`;
   document.getElementById('h-cap-l').textContent = `with the staff you have today – about ${num(c.extraCensus,1)} more patients enrolled on an average day, or ${num(c.extraPtDays)} more patient-days at home per year.`;
 
   document.getElementById('kpis').innerHTML = `
@@ -397,7 +397,7 @@ function render(){
     ['Nurse time per home visit', `${s.travel} min travel + ${s.dur} min with the patient`, num(c.minPerVisit)+' min'],
     ['Nurse time in visits per year', `${num(c.visits)} × ${num(c.minPerVisit)} min ÷ 60`, num(c.baseNurseH)+' h'],
     ['sec','Remote contacts replace nurse home visits'],
-    ['Visits already substituted digitally today', `${s.dvideo} % × 0.04 + ${s.drpm} % × 0.04 + ${s.dchat} % × 0.02 + ${s.dself} % × 0.02`, num(c.r0,1)+' %'],
+    ['Visits already substituted digitally today', `video ${s.dvideo} % × 0.04 + monitoring ${s.drpm} % × 0.04 + chat ${s.dchat} % × 0.02 + self-care ${s.dself} % × 0.02`, num(c.r0,1)+' %'],
     ['Target share with Medoma', `${sc.label} scenario`, sc.remoteT+' %'],
     ['Additional share moved to remote', `${sc.remoteT} % − ${num(c.r0,1)} %`, num(c.inc*100,1)+' %'],
     ['Visits replaced', `${num(c.visits)} × ${num(c.inc*100,1)} %`, num(c.remoteVis)],

@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Medoma ROI-kalkylator</title>
-<meta name="description" content="Uppskatta kapaciteten Medoma frigör i er Hospital at Home-verksamhet – varje siffra är er egen, uppmätt eller ett öppet antagande, med hela uträkningen synlig.">
+<meta name="description" content="Uppskatta hur mycket kapacitet Medoma frigör i er verksamhet – varje siffra är er egen, uppmätt eller ett öppet antagande, med hela uträkningen synlig.">
 <meta property="og:title" content="Medoma ROI-kalkylator">
-<meta property="og:description" content="Hur mycket mer skulle ert Hospital at Home-team hinna med? Se resultatet och hela uträkningen bakom.">
+<meta property="og:description" content="Hur mycket mer kapacitet finns i er verksamhet? Se resultatet och hela uträkningen bakom.">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <script>(function(){try{var q=new URLSearchParams(location.search);var pick=q.get('lang')||localStorage.getItem('lang');if(pick==='en')location.replace('index.html'+location.search);}catch(e){}})();</script>
 
@@ -114,8 +114,8 @@
   <div style="display:flex;align-items:center;gap:1.1rem">
   <a href="https://www.medoma.com" aria-label="Medoma" style="color:var(--ink);line-height:0;flex:none"><svg width="61" height="61" viewBox="41 41 85 85" fill="currentColor" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" overflow="hidden"><g transform="translate(-1260 -349)"><path d="M77.3388 64.5638 66.562 64.5638 66.562 89.4723 41.6535 89.4723 41.6535 100.249 66.562 100.249 66.562 125.161 77.3388 125.161 77.3388 100.249 102.25 100.249 102.25 89.4723 77.3388 89.4723Z" transform="matrix(1.00106 0 0 1 1260.02 349)"/><path d="M91.7618 41.7123 84.1427 49.3314 114.354 79.5401 114.354 125.131 125.131 125.131 125.131 75.0787Z" transform="matrix(1.00106 0 0 1 1260.02 349)"/></g></svg></a>
   <div class="lede">
-    <h1>Hur mycket mer skulle ert Hospital at Home-team hinna med?</h1>
-    <p class="muted small">Uppskatta kapaciteten Medoma frigör i er Hospital at Home- eller hemsjukvårdsverksamhet. Beskriv er verksamhet, välj hur stor effekt ni vill anta, och se resultatet – med hela uträkningen bakom.</p>
+    <h1>Hur mycket mer kapacitet finns i er verksamhet?</h1>
+    <p class="muted small">Uppskatta hur mycket personaltid Medoma frigör i er verksamhet – och hur många fler patienter ni skulle kunna ta emot med samma bemanning. Beskriv verksamheten, välj hur stor effekt ni vill anta, och se resultatet med hela uträkningen bakom.</p>
   </div>
   <div style="margin-left:auto;align-self:flex-start;font-size:.8rem;white-space:nowrap"><a href="index.html" onclick="localStorage.setItem('lang','en')" style="text-decoration:none">EN</a> · <b>SV</b></div>
   </div>
@@ -223,7 +223,7 @@
   <!-- ===== RESULTS (hidden until submit) ===== -->
   <section class="panel" aria-labelledby="h-res" id="results" hidden>
     <div class="ph">
-      <h2 id="h-res">Med Medoma skulle ert team kunna ta hand om</h2>
+      <h2 id="h-res">Med Medoma skulle ni kunna ta hand om</h2>
       <div class="actions">
         <span class="small muted" id="scenlabel">Typisk-scenariot</span>
         <button type="button" class="btn ghost" id="copy">Kopiera sammanfattning</button>
@@ -236,7 +236,7 @@
     <div class="rescheck">
       Kontroll mot det vi har mätt: modellen ger <span class="n" id="k-uplift">–</span> fler patienter per sjuksköterska. I Medoma-drift har vi uppmätt cirka +20 % i en före/efter-jämförelse. Ligger ert resultat långt över det är scenariot troligen för ambitiöst för ett första år.
     </div>
-    <div class="rescheck" style="border-top:0;padding-top:0"><span class="small muted">* Antar att besöken körs med fossildrivna fordon, cirka 140 g CO₂ per km för en modern bensin- eller dieselbil.<br>** Värderat med europeiska referenstaxor inkl. arbetsgivarkostnader – sjuksköterska €45/h, läkare €100/h, samordning €40/h, fordon €0.8/km. Ersätt med era egna taxor i dialog med oss; detta är bruttovärdet av frigjord tid, inte netto-ROI.</span></div>
+    <div class="rescheck" style="border-top:0;padding-top:0"><span class="small muted">* Antar att besöken körs med fossildrivna fordon, cirka 140 g CO₂ per km för en modern bensin- eller dieselbil.<br>** Värderat med svenska referenstaxor inkl. arbetsgivarkostnader – sjuksköterska 500 kr/h, läkare 1 100 kr/h, samordning 450 kr/h, fordon 8,50 kr/km. Ersätt med era egna taxor i dialog med oss; detta är bruttovärdet av frigjord tid, inte netto-ROI.</span></div>
     <div class="cta">
       <div><strong>Vill ni gå igenom siffrorna för er verksamhet?</strong><div class="small muted">Vi går gärna igenom antagandena tillsammans med era egna siffror.</div></div>
       <a class="btn" href="https://www.medoma.com/contact">Prata med oss</a>
@@ -278,7 +278,7 @@ const RPMMIN = 5; // min shorter per home visit when values are pre-reported (cl
 const MDDUR = 30; // min physician spends at the bedside on a physical round (clinical estimate)
 const MDVID = 8;  // min a video round takes (observed in live services)
 const LEAD_ENDPOINT = ''; // e.g. 'https://formspree.io/f/XXXXXXX' — leave empty to fall back to a prefilled email
-const RATE = { nurse:45, md:100, coord:40, km:0.8 }; // EUR reference rates incl. employer costs (estimate)
+const RATE = { nurse:500, md:1100, coord:450, km:8.5 }; // SEK reference rates incl. employer costs (estimate)
 const PTOOL = { paper:{f:1.0,label:'whiteboard, papper & telefon'}, sheets:{f:0.9,label:'kalkylblad'}, digital:{f:0.75,label:'integrerad digital planering'} }; // share of the coordination gain still available (estimate)
 const DEFAULTS = { sites:1, coop:'no', census:15, vpd:1.0, days:365, travel:25, dur:30, km:12, coordh:8, mdcons:1.0, ptool:'paper',
                    dvideo:0, drpm:0, dchat:0, dself:0 };
@@ -353,20 +353,20 @@ function render(){
 
   document.querySelectorAll('.scard').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.scen===s.scen)));
   const rows = [
-    ['Större andel patientkontakter och aktiviteter hanteras på distans', '\u2192 ' + sc.remoteT + ' %'],
-    ['Kortare restid genom ruttoptimering', '\u2212 ' + sc.route + ' %'],
-    ['Mindre tid för planering och samordning', '\u2212 ' + sc.coord + ' %'],
+    ['Större andel patientkontakter och aktiviteter hanteras på distans', sc.remoteT + ' %'],
+    ['Kortare restid genom ruttoptimering', sc.route + ' %'],
+    ['Mindre tid för planering och samordning', sc.coord + ' %'],
     ['Realiseringsgrad på frigjord personaltid', sc.real + ' %'],
   ];
   document.getElementById('svals').innerHTML =
     `<tr><td style="border-bottom:0;padding:.3rem .35rem .05rem"></td><td class="v" style="border-bottom:0;padding:.3rem .35rem .05rem;font-weight:500;color:var(--ink-2);font-size:.74rem">Mål</td></tr>` +
     rows.map(r => `<tr><td>${r[0]}</td><td class="v">${r[1]}</td></tr>`).join('');
 
-  document.getElementById('h-cap').textContent = `+${pct(c.capPct)} fler patienter`;
+  document.getElementById('h-cap').textContent = `${pct(c.capPct)} fler patienter`;
   document.getElementById('h-cap-l').textContent = `med den bemanning ni har i dag – cirka ${num(c.extraCensus,1)} fler inskrivna patienter en genomsnittlig dag, eller ${num(c.extraPtDays)} fler patientdygn hemma per år.`;
 
   document.getElementById('kpis').innerHTML = `
-    <div class="kpi"><div class="n">\u20AC ${num(c.eurTotal/1000)} k</div><div class="l">årligt värde av frigjord tid och körning\u2009**</div></div>
+    <div class="kpi"><div class="n">${num(c.eurTotal/1000)} tkr</div><div class="l">årligt värde av frigjord tid och körning\u2009**</div></div>
     <div class="kpi"><div class="n">${num((c.freedRealH+c.mdRealH)/52)} h</div><div class="l">klinisk personaltid frigjord per vecka</div></div>
     <div class="kpi"><div class="n">${num(c.coordRealH/52)} h</div><div class="l">planerings- och samordningstid frigjord per vecka</div></div>
     <div class="kpi"><div class="n">${num(c.kmSaved)} km</div><div class="l">mindre bilkörning per år<br>${LEAF} ≈ ${co2fmt(c.co2Saved)} CO\u2082 undviks per år\u2009*</div></div>`;
@@ -386,7 +386,7 @@ function render(){
     travel: `${badge('b-est','Antagande')} Vi publicerar ännu inte en uppmätt siffra för ruttoptimering. Det vi har mätt är storleken på själva rutthävstången: i en simulering på verkliga driftdata från flera enheter flyttade enbart ruttstrukturen körsträckan med i storleksordningen 20 %. Scenarierna antar att optimering återtar en del av det – 8, 12 eller 18 % – aldrig allt, eftersom tidsfönster, medicinsk prioritet och trafik står i vägen för perfekta rutter. CO\u2082-raden antar fossildrivna fordon, cirka 140 g CO\u2082 per km för en modern bensin- eller dieselbil.`,
     coord: `${badge('b-est','Antagande')} Planeringstiden anges per enhet, så beräkningen multiplicerar den med ert antal enheter. Vad ni planerar med i dag spelar roll: en whiteboard-och-telefon-verksamhet har hela vinsten framför sig, och kalkylblad eller ett fristående planeringsverktyg bara något mindre – faktorerna 1.0 / 0.9 / 0.75 är vårt öppet redovisade antagande – generiska verktyg organiserar tavlan, men själva samordningsarbetet kvarstår tills planeringen är integrerad med vårdflödet. Standardvärdena är medvetet låga.`,
     pool: `${badge('b-est','Antagande')} Gäller bara när enheter faktiskt delar personal eller planering: toppar på en enhet absorberas av luft i en annan i stället för av extra bemanning. Ännu ingen publicerad siffra.`,
-    eur: `${badge('b-est','Antagande')} Tim- och fordonstaxorna är runda europeiska referensvärden inklusive arbetsgivarkostnader – ersätt dem med era egna. Detta är bruttovärdet av den frigjorda tiden och körningen; det säger inget om vad Medoma kostar, och är alltså en värdesiffra, inte en avkastningssiffra.`,
+    eur: `${badge('b-est','Antagande')} Tim- och fordonstaxorna är runda svenska referensvärden inklusive arbetsgivarkostnader – ersätt dem med era egna. Detta är bruttovärdet av den frigjorda tiden och körningen; det säger inget om vad Medoma kostar, och är alltså en värdesiffra, inte en avkastningssiffra.`,
     cap: `${badge('b-est','Antagande')} Frigjorda minuter blir fler patienter först när scheman och patientinflöde tillåter det, så vi räknar aldrig 100 % – scenarierna räknar 50, 70 eller 85 % av frigjord personaltid. Korskontroll: den uppmätta ökningen på ~20 % patienter per sjuksköterska i drift är förenlig med en realiseringsgrad kring 70 %.`,
     check: `Referensvärdena kommer från Medoma Intelligence i drift i Sverige, Schweiz och Lettland, 2025–2026 [n patientdygn, period]; de ~20 % fler patienterna per sjuksköterska är en före/efter-jämförelse vid [verksamhet, period, n patientdygn]. Medvetet utelämnat: färre återinläggningar, kortare vårdtid, patient- och medarbetarnöjdhet – verkliga effekter, men de tillhör Hospital at Home som vårdform snarare än plattformen. Fullständig metodnot på begäran.`,
   };
@@ -397,7 +397,7 @@ function render(){
     ['Sjukskötersketid per hembesök', `${s.travel} min restid + ${s.dur} min hos patienten`, num(c.minPerVisit)+' min'],
     ['Sjukskötersketid i besök per år', `${num(c.visits)} × ${num(c.minPerVisit)} min ÷ 60`, num(c.baseNurseH)+' h'],
     ['sec','Distanskontakter ersätter sjuksköterskans hembesök'],
-    ['Besök som redan ersätts digitalt i dag', `${s.dvideo} % × 0.04 + ${s.drpm} % × 0.04 + ${s.dchat} % × 0.02 + ${s.dself} % × 0.02`, num(c.r0,1)+' %'],
+    ['Besök som redan ersätts digitalt i dag', `video ${s.dvideo} % × 0.04 + monitorering ${s.drpm} % × 0.04 + chatt ${s.dchat} % × 0.02 + egenvård ${s.dself} % × 0.02`, num(c.r0,1)+' %'],
     ['Målandel med Medoma', `${sc.label}-scenariot`, sc.remoteT+' %'],
     ['Ytterligare andel som flyttas till distans', `${sc.remoteT} % − ${num(c.r0,1)} %`, num(c.inc*100,1)+' %'],
     ['Ersatta besök', `${num(c.visits)} × ${num(c.inc*100,1)} %`, num(c.remoteVis)],
@@ -437,11 +437,11 @@ function render(){
     ['Fler patienter med samma bemanning', `${num(c.extraCensus,1)} ÷ ${s.census}`, '+'+pct(c.capPct)],
     ['note', NOTE.cap],
     ['sec','Vad det är värt'],
-    ['Sjukskötersketid', `${num(c.freedRealH)} h × \u20AC${RATE.nurse}`, '\u20AC '+num(c.eurNurse)],
-    ['Läkartid', `${num(c.mdRealH)} h × \u20AC${RATE.md}`, '\u20AC '+num(c.eurMd)],
-    ['Samordningstid', `${num(c.coordRealH)} h × \u20AC${RATE.coord}`, '\u20AC '+num(c.eurCoord)],
-    ['Körning', `${num(c.kmSaved)} km × \u20AC${RATE.km}`, '\u20AC '+num(c.eurKm)],
-    ['Årligt värde, brutto', 'summan av raderna ovan', '\u20AC '+num(c.eurTotal)],
+    ['Sjukskötersketid', `${num(c.freedRealH)} h × ${RATE.nurse} kr`, num(c.eurNurse)+' kr'],
+    ['Läkartid', `${num(c.mdRealH)} h × ${RATE.md} kr`, num(c.eurMd)+' kr'],
+    ['Samordningstid', `${num(c.coordRealH)} h × ${RATE.coord} kr`, num(c.eurCoord)+' kr'],
+    ['Körning', `${num(c.kmSaved)} km × ${RATE.km} kr`, num(c.eurKm)+' kr'],
+    ['Årligt värde, brutto', 'summan av raderna ovan', num(c.eurTotal)+' kr'],
     ['note', NOTE.eur],
     ['sec','Kontroll'],
     ['Implicit ökning av patienter per sjuksköterska', `(${num(c.h1)} + ${num(c.h2)} + ${num(c.h5)}${c.pooled?' + '+num(c.h4):''}) h ÷ ${num(c.baseNurseH)} h`, '+'+pct(c.uplift)],
@@ -489,7 +489,7 @@ function summaryText(){
   return `Medoma – kapacitetsuppskattning (${c.sc.label}-scenariot)
 Verksamhet: ${s.census} patienter på ${s.sites} enhet(er)${c.pooled?' med delad planering':''}, ${num(s.vpd,1)} hembesök per patientdygn, ${num(c.r0,1)} % av besöken redan digitalt ersatta
 Resultat: +${pct(c.capPct)} fler patienter med samma bemanning (${num(c.extraCensus,1)} fler inskrivna, ${num(c.extraPtDays)} fler patientdygn/år)
-Årligt värde av frigjord tid och körning: \u2248 \u20AC${num(c.eurTotal/1000)}k (referenstaxor). Klinisk personaltid frigjord: ${num((c.freedRealH+c.mdRealH)/52)} h/vecka. Samordning: ${num(c.coordRealH/52)} h/vecka. Undviken körning: ${num(c.kmSaved)} km/år (≈ ${co2fmt(c.co2Saved)} CO\u2082, fossildrivna fordon).
+Årligt värde av frigjord tid och körning: \u2248 ${num(c.eurTotal/1000)} tkr (referenstaxor). Klinisk personaltid frigjord: ${num((c.freedRealH+c.mdRealH)/52)} h/vecka. Samordning: ${num(c.coordRealH/52)} h/vecka. Undviken körning: ${num(c.kmSaved)} km/år (≈ ${co2fmt(c.co2Saved)} CO\u2082, fossildrivna fordon).
 Scenario: distansmål ${c.sc.remoteT} %, restid −${c.sc.route} %, samordning −${c.sc.coord} %${c.pooled?', delad planering +'+c.sc.pool+' %':''}, realisering ${c.sc.real} %`;
 }
 document.getElementById('lead-send').addEventListener('click', async () => {
