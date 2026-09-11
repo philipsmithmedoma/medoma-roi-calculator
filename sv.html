@@ -7,6 +7,7 @@
 <meta name="description" content="Uppskatta hur mycket kapacitet Medoma frigör i er verksamhet – varje siffra är er egen, uppmätt eller ett öppet antagande, med hela uträkningen synlig.">
 <meta property="og:title" content="Medoma ROI-kalkylator">
 <meta property="og:description" content="Hur mycket mer kapacitet finns i er verksamhet? Se resultatet och hela uträkningen bakom.">
+<meta name="robots" content="noindex, nofollow">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <script>(function(){try{var q=new URLSearchParams(location.search);var pick=q.get('lang')||localStorage.getItem('lang');if(pick==='en')location.replace('index.html'+location.search);}catch(e){}})();</script>
 
@@ -105,10 +106,28 @@
   .btn.ghost{background:transparent;color:var(--brand)} .btn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
   .cta{padding:.9rem;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
   [hidden]{display:none !important}
+
+  #gate{position:fixed;inset:0;background:var(--paper);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1.5rem}
+  #gate .box{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);max-width:30rem;width:100%;padding:1.8rem 1.8rem 1.5rem;text-align:center}
+  #gate svg{color:var(--ink);margin-bottom:.9rem}
+  #gate h2{font-size:1.25rem;margin-bottom:.35rem}
+  #gate p{color:var(--ink-2);font-size:.9rem;margin:0 auto .9rem;max-width:34ch}
+  #gate .row{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}
+  #gate input{padding:.55rem .7rem;border:1px solid var(--line);border-radius:var(--r);min-width:12rem;text-align:center;letter-spacing:.06em}
+  #gate input:focus-visible{outline:2px solid var(--teal);border-color:var(--teal)}
+  #gate .btn{background:var(--green);border-color:var(--green);padding:.55rem 1.1rem}
+  #gate .err{color:var(--burg);font-size:.85rem;min-height:1.2rem;margin-top:.6rem}
   @media print{.actions,.cta,.submit{display:none} .wrap{padding:0} .panel{break-inside:avoid;border:0;margin-bottom:1rem}}
 </style>
 </head>
 <body>
+<div id="gate" hidden><div class="box">
+  <svg width="44" height="44" viewBox="41 41 85 85" fill="currentColor" aria-hidden="true"><g transform="translate(-1260 -349)"><path d="M77.3388 64.5638 66.562 64.5638 66.562 89.4723 41.6535 89.4723 41.6535 100.249 66.562 100.249 66.562 125.161 77.3388 125.161 77.3388 100.249 102.25 100.249 102.25 89.4723 77.3388 89.4723Z" transform="matrix(1.00106 0 0 1 1260.02 349)"/><path d="M91.7618 41.7123 84.1427 49.3314 114.354 79.5401 114.354 125.131 125.131 125.131 125.131 75.0787Z" transform="matrix(1.00106 0 0 1 1260.02 349)"/></g></svg>
+  <h2>Medoma ROI-kalkylator</h2>
+  <p>Kalkylatorn delas med utvalda verksamheter. Ange åtkomstkoden från din inbjudan för att fortsätta.</p>
+  <div class="row"><input id="gate-code" type="password" placeholder="Åtkomstkod" autocomplete="off" aria-label="Åtkomstkod"><button type="button" class="btn" id="gate-go">Fortsätt</button></div>
+  <div class="err" id="gate-err"></div>
+</div></div>
 
 <header class="top">
   <div style="display:flex;align-items:center;gap:1.1rem">
@@ -515,6 +534,25 @@ document.getElementById('copy').addEventListener('click', async () => {
   catch(e){ alert(txt); }
 });
 render();
+
+/* ---------- ACCESS GATE (soft, invitation-style) ---------- */
+const ACCESS_CODE = 'medoma2026'; // change here; share via your invitation email
+(function(){
+  var gate=document.getElementById('gate'), err=document.getElementById('gate-err');
+  var q=new URLSearchParams(location.search).get('code');
+  function open_(){ try{sessionStorage.setItem('access','1');}catch(e){} gate.remove(); document.body.style.overflow=''; }
+  if ((q && q===ACCESS_CODE) || (function(){try{return sessionStorage.getItem('access')==='1';}catch(e){return false;}})()) return;
+  gate.hidden=false; document.body.style.overflow='hidden';
+  var input=document.getElementById('gate-code');
+  function submit(){
+    var v=input.value.trim();
+    if (!v) { err.textContent='Ange koden från din inbjudan.'; return; }
+    if (v===ACCESS_CODE) open_(); else { err.textContent='Fel kod – kontrollera din inbjudan.'; input.select(); }
+  }
+  document.getElementById('gate-go').addEventListener('click', submit);
+  input.addEventListener('keydown', function(e){ if(e.key==='Enter') submit(); });
+  setTimeout(function(){ input.focus(); }, 50);
+})();
 </script>
 </body>
 </html>
